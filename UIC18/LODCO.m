@@ -20,7 +20,7 @@ p_H = E_H_max / (2*tau);  % the average Energy Harvesting (EH) power (in W)
 g0 = power(10, -4);       % the path-loss constant
 
 %% parameter control
-T = 10000;                % the number of time slot (a.k.a. the size of the time horizon)
+T = 50000;                % the number of time slot (a.k.a. the size of the time horizon)
 tau_d = 0.002;            % execution deadline (in second)
 d = 50;                   % the distance between the mobile device and the MEC server (in meter)
 E_min = 0.02e-3;          % the minimum amout of battery output energy (in J)
@@ -44,7 +44,7 @@ E = zeros(T, 3);          % energy consumption for mobile execution, MEC server 
 %% simulation begin
 t = 1;
 while t <= T
-    disp(['===> Time slot #', num2str(t), '<==='])
+    disp(['===> Time slot #', num2str(t), ' <==='])
     
     %% initialization
     % generate the task request
@@ -65,7 +65,7 @@ while t <= T
         chosen_mode(t) = 4;
     else
         % chosen_mode is chosen from {1, 2, 3}
-        disp('task request generated!');
+        disp('task request generated!')
         % task request exists, generate the channel power gain
         h = exprnd(g0 / power(d, 4));
     
@@ -80,7 +80,7 @@ while t <= T
             if B_hat(t) < 0
                 f_0 = (V / (-2 * B_hat(t) * k))^(1/3);
             else
-                % complex number may exist, which will lead to error
+                % complex number may exist, which may lead to error
                 f_0 = -(V / (2 * B_hat(t) * k))^(1/3);
             end
             
@@ -144,6 +144,7 @@ while t <= T
             p_E_max = fsolve(y, 100, opt);
             p_U = min(p_tx_max, p_E_max);
         end
+        
         if p_L <= p_U
             % the sub-problem is feasible
             disp('MEC server execution ($\mathcal{P}_{SE}$) is feasible!')
@@ -224,7 +225,7 @@ end
 
 %% step 6: evaluate the simulation results
 % 1. the battery energy level vs. time slot
-subplot(2, 1, 1);
+figure
 plot(1:T, B(1:T));
 hold on
 plot(1:T, repmat(theta + E_H_max, [T, 1]), '-')
@@ -244,8 +245,38 @@ for t = 1: T
     end
     average_cost(t) = accumulated / request_num;
 end
-subplot(2, 1, 2);
+figure
 plot(1:T, average_cost);
 title('Envolution of average execution cost')
 xlabel('time slot')
 ylabel('average execution cost $\frac{1}{T} \sum_{t=0}^{T-1} cost^t$', 'Interpreter','latex')
+
+% 3. the average ratio of each chosen mode vs. time slot
+average_ratio = zeros(T, 3);
+mobile_exe = 0; server_exe = 0; drop = 0;
+request_num = 0;
+for t = 1: T
+    if cost(t, 3) == 0
+        continue
+    else
+        request_num = request_num + 1;
+        if chosen_mode(t) == 1
+            mobile_exe = mobile_exe + 1;
+        elseif chosen_mode(t) == 2
+            server_exe = server_exe + 1;
+        else
+            drop = drop + 1;
+        end
+    end
+    average_ratio(t, :) = [mobile_exe, server_exe, drop] / request_num;
+end
+figure
+plot(1:T, average_ratio(:, 1));
+hold on
+plot(1:T, average_ratio(:, 2));
+hold on
+plot(1:T, average_ratio(:, 3));
+legend('mobile execution', 'MEC server execution', 'drop')
+title('Envolution of average ratio of chosen modes')
+xlabel('time slot')
+ylabel('average  ratio of chosen modes $\frac{1}{T} \sum_{t=0}^{T-1} \{I_m^t, I_s^t, I_d^t\}$', 'Interpreter','latex')
