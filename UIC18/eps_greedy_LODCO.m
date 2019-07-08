@@ -1,4 +1,4 @@
-%% This script simulates the LODCO-based Greedy algorithm.
+%% This script simulates the LODCO-based epsilon-Greedy algorithm.
 %  author: Hailiang Zhao
 clc, clear
 opt = optimset('Display', 'none');
@@ -32,6 +32,7 @@ rho = 0.6;                % the probability that the computation task is request
 max_connects = 4;         % the maximum number of processible mobile devices for each MEC server ($ \frac{f_s^{max} \tau}{L X} $)
 min_distance = 10;        % the minimum distance from mobile device to MEC server
 max_distance = 50;        % the maximum distance from mobile device to MEC server
+eps = 0.8;                % if rand() <= eps, for the best i-j pair, we always choose MEC server execution mode (except no MEC server to choose)
 
 % the lower bound of perturbation parameter
 E_max_hat = min(max(k * W * (f_max)^2, p_tx_max * tau), E_max);
@@ -249,97 +250,146 @@ while t <= T
     
     %% step 2: allocate connection right for each mobile device who chooses MEC server execution
     while ~isempty(device_server_pairs)
-        for j = 1: M
-            % find every pair who chooses the MEC server j
-            device_j_pairs = device_server_pairs(device_server_pairs(:, 2) == j, :);
-            % find those devices is
-            is = device_j_pairs(:, 1);
-            if isempty(is)
-                disp(['For current MEC server #', num2str(j), ', no mobile device choose it!'])
-                % go to handle next MEC server
-                continue;
-            end
-            if remained_connects(j) >= length(is)
-                % every mobile device who chooses j can be connected,
-                % set their final modes as 2 and record the final cost and energy consumption for them
-                chosen_mode(t, is) = 2;     % this is not necessary
-                p(t, is) = transp(p_mat(is, j));
-                server_exe_cost(t, is) = transp(server_cost_mat(is, j));
-                server_exe_E(t, is) = transp(server_E_mat(is, j));
-                chosen_server(t, is) = repmat(j, 1, length(is));
-                final_chosen_cost(t, is) = server_exe_cost(t, is);
-                final_chosen_E(t, is) = server_exe_E(t, is);
+        if rand() <= eps
+            % find the {i, j, J_s(i, j)} with the minimum J_s(i, j) in the device_server_pairs, choose MEC server execution mode, 
+            % except no MEC server to choose
+            [min_Js, idx] = min(device_server_pairs(:, 3));
+            i = device_server_pairs(idx, 1); j = device_server_pairs(idx, 2);    % find the i and its j
+            if remained_connects(j) >= 1
+                % the chosen i can be allocated to the j-th MEC server
+                % set its final modes as 2 and record the final cost and energy consumption for it
+                chosen_mode(t, i) = 2;          % this is not necessary
+                p(t, i) = p_mat(i, j);
+                server_exe_cost(t, i) = server_cost_mat(i, j);
+                server_exe_E(t, i) = server_E_mat(i, j);
+                chosen_server(t, i) = j;
+                final_chosen_cost(t, i) = server_exe_cost(t, i);
+                final_chosen_E(t, i) = server_exe_E(t, i);
                 
                 % update remained_connects for j
-                remained_connects(j) = remained_connects(j) - length(is);
-                % finally, remove them from global pairs, they are done
-                device_server_pairs(device_server_pairs(:, 2) == j, :) = [];
+                remained_connects(j) = remained_connects(j) - 1;
+                % finally, remove it from global pairs, it is done
+                device_server_pairs(device_server_pairs(:, 1) == i, :) = [];
             else
-                if remained_connects(j) == 0
-                    % no mobile device can be connected, remove all mobile devices who chooses j from global pairs
-                    device_server_pairs(device_server_pairs(:, 2) == j, :) = [];
-                    % set those mobile devices' J_s(i, j) as inf
-                    % (which means no matter what happens, the MEC server j can never be chosen)
-                    J_s(is, j) = inf;
-                    % choose mode again for those i and insert new potential pairs into global pairs
-                    for idx = 1: numel(is)
-                        i = is(idx);
-                        [~, mode] = min([J_m(i), J_s(i, :), J_d]);
-                        if mode == 1
-                            chosen_mode(t, i) = 1;
-                            final_chosen_cost(t, i) = mobile_exe_cost(t, i);
-                            final_chosen_E(t, i) = mobile_exe_E(t, i);
-                        elseif mode == (M+2)
-                            chosen_mode(t, i) = 3;
-                            final_chosen_cost(t, i) = phi;
-                            final_chosen_E(t, i) = 0;
-                        else
-                            chosen_mode(t, i) = 2;
-                            device_server_pairs = [device_server_pairs; [i, mode-1, J_s(i, mode-1)]];
-                        end
-                    end
+                % the chosen i can not be allocated to the j-th MEC server
+                % set the mobile device's J_s(i, j) as inf
+                % (which means no matter what happens, the MEC server j can never be chosen)
+                J_s(i, j) = inf;
+                % remove it from global pairs
+                device_server_pairs(device_server_pairs(:, 1) == i, :) = [];
+                % if there still exists j' where J_s(i, j') is not inf, we choose the best j', 
+                % otherwise we can only choose from mobile execution and drop
+                if min(J_s(i, :)) ~= inf
+                    [second_min_Js, second_min_j] = min(J_s(i, :));
+                    % add the new pair into global pairs
+                    device_server_pairs = [device_server_pairs; [i, second_min_j, second_min_Js]];
                 else
-                    % some mobile devices can be connected, set their final modes as 2 and remove them from global pairs
-                    % besides, record the final cost and energy consumption for them
-                    % for the left i', remove them from global pairs and set J_s(i', j) as inf, 
-                    % choose mode again for those i' and insert new potential pairs into global pairs
-                    
-                    % sort the J_s(is, j) and return those lucky idxs
-                    [~, idxs] = sort(device_j_pairs(:, 3));
-                    for idx = 1: remained_connects(j)
-                        i = idxs(idx);
-                        chosen_mode(t, i) = 2;
-                        p(t, i) = p_mat(i, j);
-                        server_exe_cost(t, i) = server_cost_mat(i, j);
-                        server_exe_E(t, i) = server_E_mat(i, j);
-                        chosen_server(t, i) = j;
-                        final_chosen_cost(t, i) = server_exe_cost(t, i);
-                        final_chosen_E(t, i) = server_exe_E(t, i);
-                        
-                        % remove i from global pairs
-                        device_server_pairs(device_server_pairs(:, 1) == i, :) = [];
+                    % choose from mobile execution and drop for i
+                    [~, mode] = min([J_m(i), inf, J_d]);
+                    chosen_mode(t, i) = mode;
+                    if mode == 1
+                        final_chosen_cost(t, i) = mobile_exe_cost(t, i);
+                        final_chosen_E(t, i) = mobile_exe_E(t, i);
+                    else
+                        final_chosen_cost(t, i) = phi;
+                        final_chosen_E(t, i) = 0;
                     end
-                    
+                end
+            end
+        else
+            % do as LODCO-based Greedy algorithm do
+            for j = 1: M
+                % find every pair who chooses the MEC server j
+                device_j_pairs = device_server_pairs(device_server_pairs(:, 2) == j, :);
+                % find those devices is
+                is = device_j_pairs(:, 1);
+                if isempty(is)
+                    disp(['For current MEC server #', num2str(j), ', no mobile device choose it!'])
+                    % go to handle next MEC server
+                    continue;
+                end
+                if remained_connects(j) >= length(is)
+                    % every mobile device who chooses j can be connected,
+                    % set their final modes as 2 and record the final cost and energy consumption for them
+                    chosen_mode(t, is) = 2;     % this is not necessary
+                    p(t, is) = transp(p_mat(is, j));
+                    server_exe_cost(t, is) = transp(server_cost_mat(is, j));
+                    server_exe_E(t, is) = transp(server_E_mat(is, j));
+                    chosen_server(t, is) = repmat(j, 1, length(is));
+                    final_chosen_cost(t, is) = server_exe_cost(t, is);
+                    final_chosen_E(t, is) = server_exe_E(t, is);
+
                     % update remained_connects for j
-                    remained_connects(j) = 0;
-                    
-                    % for those unlucky mobile devices i', set J_s(i', j) as inf (i' are in currently device_server_pairs(: , j) now)
-                    residual_is = device_server_pairs(device_server_pairs(:, 2) == j, 1);
-                    J_s(residual_is, j) = inf;
-                    for idx = 1: numel(residual_is)
-                        residual_i = residual_is(idx);
-                        [~, mode] = min([J_m(residual_i), J_s(residual_i, :), J_d]);
-                        if mode == 1
-                            chosen_mode(t, residual_i) = 1;
-                            final_chosen_cost(t, residual_i) = mobile_exe_cost(t, residual_i);
-                            final_chosen_E(t, residual_i) = mobile_exe_E(t, residual_i);
-                        elseif mode == (M+2)
-                            chosen_mode(t, residual_i) = 3;
-                            final_chosen_cost(t, residual_i) = phi;
-                            final_chosen_E(t, residual_i) = 0;
-                        else
-                            chosen_mode(t, residual_i) = 2;
-                            device_server_pairs = [device_server_pairs; [residual_i, mode-1, J_s(residual_i, mode-1)]];
+                    remained_connects(j) = remained_connects(j) - length(is);
+                    % finally, remove them from global pairs, they are done
+                    device_server_pairs(device_server_pairs(:, 2) == j, :) = [];
+                else
+                    if remained_connects(j) == 0
+                        % no mobile device can be connected, remove all mobile devices who chooses j from global pairs
+                        device_server_pairs(device_server_pairs(:, 2) == j, :) = [];
+                        % set those mobile devices' J_s(i, j) as inf
+                        % (which means no matter what happens, the MEC server j can never be chosen)
+                        J_s(is, j) = inf;
+                        % choose mode again for those i and insert new potential pairs into global pairs
+                        for idx = 1: numel(is)
+                            i = is(idx);
+                            [~, mode] = min([J_m(i), J_s(i, :), J_d]);
+                            if mode == 1
+                                chosen_mode(t, i) = 1;
+                                final_chosen_cost(t, i) = mobile_exe_cost(t, i);
+                                final_chosen_E(t, i) = mobile_exe_E(t, i);
+                            elseif mode == (M+2)
+                                chosen_mode(t, i) = 3;
+                                final_chosen_cost(t, i) = phi;
+                                final_chosen_E(t, i) = 0;
+                            else
+                                chosen_mode(t, i) = 2;
+                                device_server_pairs = [device_server_pairs; [i, mode-1, J_s(i, mode-1)]];
+                            end
+                        end
+                    else
+                        % some mobile devices can be connected, set their final modes as 2 and remove them from global pairs
+                        % besides, record the final cost and energy consumption for them
+                        % for the left i', remove them from global pairs and set J_s(i', j) as inf, 
+                        % choose mode again for those i' and insert new potential pairs into global pairs
+
+                        % sort the J_s(is, j) and return those lucky idxs
+                        [~, idxs] = sort(device_j_pairs(:, 3));
+                        for idx = 1: remained_connects(j)
+                            i = idxs(idx);
+                            chosen_mode(t, i) = 2;
+                            p(t, i) = p_mat(i, j);
+                            server_exe_cost(t, i) = server_cost_mat(i, j);
+                            server_exe_E(t, i) = server_E_mat(i, j);
+                            chosen_server(t, i) = j;
+                            final_chosen_cost(t, i) = server_exe_cost(t, i);
+                            final_chosen_E(t, i) = server_exe_E(t, i);
+
+                            % remove i from global pairs
+                            device_server_pairs(device_server_pairs(:, 1) == i, :) = [];
+                        end
+
+                        % update remained_connects for j
+                        remained_connects(j) = 0;
+
+                        % for those unlucky mobile devices i', set J_s(i', j) as inf (i' are in currently device_server_pairs(: , j) now)
+                        residual_is = device_server_pairs(device_server_pairs(:, 2) == j, 1);
+                        J_s(residual_is, j) = inf;
+                        for idx = 1: numel(residual_is)
+                            residual_i = residual_is(idx);
+                            [~, mode] = min([J_m(residual_i), J_s(residual_i, :), J_d]);
+                            if mode == 1
+                                chosen_mode(t, residual_i) = 1;
+                                final_chosen_cost(t, residual_i) = mobile_exe_cost(t, residual_i);
+                                final_chosen_E(t, residual_i) = mobile_exe_E(t, residual_i);
+                            elseif mode == (M+2)
+                                chosen_mode(t, residual_i) = 3;
+                                final_chosen_cost(t, residual_i) = phi;
+                                final_chosen_E(t, residual_i) = 0;
+                            else
+                                chosen_mode(t, residual_i) = 2;
+                                device_server_pairs = [device_server_pairs; [residual_i, mode-1, J_s(residual_i, mode-1)]];
+                            end
                         end
                     end
                 end
