@@ -21,15 +21,17 @@ g0 = power(10, -4);       % the path-loss constant
 d0 = 1;                   % the relative distance between each mobile device and each MEC server
 
 %% parameter control
-N = 20;                   % the number of mobile devices
+N = 10;                   % the number of mobile devices
 M = 8;                    % the number of MEC servers
-T = 500;                  % the number of time slot (a.k.a. the size of the time horizon)
+T = 1500;                 % the number of time slot (a.k.a. the size of the time horizon)
 tau_d = 0.002;            % execution deadline (in second)
 d = 50;                   % the distance between the mobile device and the MEC server (in meter)
 E_min = 0.02e-3;          % the minimum amout of battery output energy (in J)
 V = 1e-5;                 % the weight of penalty (the control parameter introduced by Lyapunov Optimization)
 rho = 0.6;                % the probability that the computation task is requested
 max_connects = 4;         % the maximum number of processible mobile devices for each MEC server ($ \frac{f_s^{max} \tau}{L X} $)
+min_distance = 10;        % the minimum distance from mobile device to MEC server
+max_distance = 50;        % the maximum distance from mobile device to MEC server
 
 % the lower bound of perturbation parameter
 E_max_hat = min(max(k * W * (f_max)^2, p_tx_max * tau), E_max);
@@ -69,7 +71,7 @@ while t <= T
     % generate the virtual battery energy level
     B_hat(t, :) = B(t, :) - theta;
     % generate the channel power gain (from each mobile device to each MEC sever)
-    distances = unifrnd(20, 80, N, M);
+    distances = unifrnd(min_distance, max_distance, N, M);
     gamma = exprnd(1, N, M);
     h_mat = g0 * gamma .* power(d0 ./ distances, 4);
     
@@ -224,7 +226,7 @@ while t <= T
             %% step 1.2.3: choose the (initial) optimal execution mode
             J_d = V * phi;
             disp(['J_m(i):', num2str(J_m(i))])
-            disp(['J_s(i,:)', num2str(J_s(i, :))])
+            disp(['J_s(i,:):', num2str(J_s(i, :))])
             [~, mode] = min([J_m(i), J_s(i, :), J_d]);
             if mode == 1
                 % mobile execution
@@ -261,12 +263,12 @@ while t <= T
                 % every mobile device who chooses j can be connected,
                 % set their final modes as 2 and record the final cost and energy consumption for them
                 chosen_mode(t, is) = 2;     % this is not necessary
-                p(t, is) = transp(p_mat(is, j));                            % those assignment might exist problem
-                server_exe_cost(t, is) = transp(server_cost_mat(is, j));    % those assignment might exist problem
-                server_exe_E(t, is) = transp(server_E_mat(is, j));          % those assignment might exist problem
-                chosen_server(t, is) = repmat(j, 1, length(is));            % those assignment might exist problem
-                final_chosen_cost(t, is) = server_exe_cost(t, is);          % those assignment might exist problem
-                final_chosen_E(t, is) = server_exe_E(t, is);                % those assignment might exist problem
+                p(t, is) = transp(p_mat(is, j));
+                server_exe_cost(t, is) = transp(server_cost_mat(is, j));
+                server_exe_E(t, is) = transp(server_E_mat(is, j));
+                chosen_server(t, is) = repmat(j, 1, length(is));
+                final_chosen_cost(t, is) = server_exe_cost(t, is);
+                final_chosen_E(t, is) = server_exe_E(t, is);
                 
                 % update remained_connects for j
                 remained_connects(j) = remained_connects(j) - length(is);
@@ -369,6 +371,7 @@ for i = 1: N
         average_cost(t, i) = accumulated / request_num;
     end
     plot(1:T, average_cost(:, i));
+    hold on
 end
 title('Envolution of average execution cost')
 xlabel('time slot')
@@ -404,4 +407,3 @@ legend('mobile execution', 'MEC server execution', 'drop')
 title('Envolution of average ratio of chosen modes')
 xlabel('time slot')
 ylabel('average  ratio of chosen modes $\frac{1}{T} \sum_{t=0}^{T-1} \{I_m^t, I_s^t, I_d^t\}$ of the i-th mobile device', 'Interpreter','latex')
-
