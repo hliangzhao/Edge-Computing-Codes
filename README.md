@@ -20,7 +20,7 @@ Y. Mao, J. Zhang and K. B. Letaief, *Dynamic Computation Offloading for Mobile-E
 
 We implemented **the LODCO algorithm** (`LODCO.m`), and the simulation results are as follows (50000 time slots).
 <div align=center>
-    <img src="./UIC18/figures/LODCO_battery.svg" width="450"/><img src="./UIC18/figures/LODCO_cost.svg" width="450"/>
+    <img src="./UIC18/figures/LODCO_battery.svg" width="400"/><img src="./UIC18/figures/LODCO_cost.svg" width="400"/>
 </div>
 <div align=center>
 <img src="./UIC18/figures/LODCO_ratio.svg" width="800"/>
@@ -29,7 +29,7 @@ We implemented **the LODCO algorithm** (`LODCO.m`), and the simulation results a
 ### LODCO-based Greedy algorithms
 **LODCO-based Greedy algorithm** was proposed for computation offloading in *multi-user multi-server* Mobile Edge Computing (MEC) systems. We implemented the algorithm (`greedy_LODCO.m`). The simulation results are as follows (2000 time slots, 10 mobile devices and 8 MEC servers).
 <div align=center>
-    <img src="./UIC18/figures/10devices_battery.svg" width="450"/><img src="./UIC18/figures/10devices_cost.svg" width="450"/>
+    <img src="./UIC18/figures/10devices_battery.svg" width="400"/><img src="./UIC18/figures/10devices_cost.svg" width="400"/>
 </div>
 <div align=center>
     <img src="./UIC18/figures/10devices_ratio.svg" width="800"/>
@@ -37,7 +37,7 @@ We implemented **the LODCO algorithm** (`LODCO.m`), and the simulation results a
 
 **LODCO-based epsilon-Greedy algorithm** was proposed to increase the ratio of MEC server execution (`eps_greedy_LODCO.m`). The ratio comparasion is as follows. In the left figure (above), epsilon is set as 0.3, and in the right one (below), epsilon is 0.8. The ratio of MEC server execution increases as epsilon increases.
 <div align=center>
-<img src="./UIC18/figures/10devices_ratio_eps03.svg" width="450"/><img src="./UIC18/figures/10devices_ratio_eps08.svg" width="450"/>
+<img src="./UIC18/figures/10devices_ratio_eps03.svg" width="400"/><img src="./UIC18/figures/10devices_ratio_eps08.svg" width="400"/>
 </div>
 
 **LODCO-based Genetic Algorithm with Greedy Policy** was an alternative way for computation offloading in *multi-user multi-server** MEC systems. The code will be added later.
