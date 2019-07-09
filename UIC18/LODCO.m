@@ -3,7 +3,7 @@
 clc, clear
 opt = optimset('Display', 'none');
 
-%% basic parameter settings
+%% basic parameter settings (had better not change those paras)
 k = 1e-28;                % effective switched capacitance (a constant decided by the chip architecture)
 tau = 0.002;              % the length of time slot (in second)
 phi = 0.002;              % the cost of task dropping (in second)
