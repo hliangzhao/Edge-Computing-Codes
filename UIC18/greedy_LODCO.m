@@ -23,7 +23,7 @@ d0 = 1;                   % the relative distance between each mobile device and
 %% parameter control
 N = 10;                   % the number of mobile devices
 M = 8;                    % the number of MEC servers
-T = 2000;                 % the number of time slot (a.k.a. the size of the time horizon)
+T = 200;                 % the number of time slot (a.k.a. the size of the time horizon)
 tau_d = 0.002;            % execution deadline (in second)
 d = 50;                   % the distance between the mobile device and the MEC server (in meter)
 E_min = 0.02e-3;          % the minimum amout of battery output energy (in J)
@@ -185,9 +185,9 @@ while t <= T
                     
                     if (p_U < p_0 && B_hat(t, i) < 0) || B_hat(t, i) >= 0
                         p_mat(i, j) = p_U;
-                    elseif p_0 < p_L && B_hat(t) < 0
+                    elseif p_0 < p_L && B_hat(t, i) < 0
                         p_mat(i, j) = p_L;
-                    elseif p_0 >= p_L && p_0 <= p_U && B_hat(t) < 0
+                    elseif p_0 >= p_L && p_0 <= p_U && B_hat(t, i) < 0
                         p_mat(i, j) = p_0;
                     end
                     % check whether p_mat(i, j) is zero
