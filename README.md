@@ -1,12 +1,14 @@
 # Edge Computing Codes
-- [Edge Computing Codes](#Edge-Computing-Codes)
-  - [UIC18](#UIC18)
-    - [LODCO algorithm](#LODCO-algorithm)
-    - [LODCO-based Greedy algorithms](#LODCO-based-Greedy-algorithms)
-  - [Final Notes](#Final-Notes)
-    - [About the Author](#About-the-Author)
+- [Edge Computing Codes](#edge-computing-codes)
+  - [UIC18](#uic18)
+    - [LODCO algorithm](#lodco-algorithm)
+    - [LODCO-based Greedy algorithms](#lodco-based-greedy-algorithms)
+  - [Final Notes](#final-notes)
+    - [About the Author](#about-the-author)
 
 Edge computing is the practice of processing data near the edge of the network, where the data is being generated, instead of in a centralised data-processing warehouse. This repos provides a better implementation of proposed algorithms in Edge Computing (it may not the same as the original algorithm).
+
+<font color='red'>**Announcement**</font>: The original repos: **Implementation_of_MEC_papers** was deprecated.
 
 ## UIC18
 The folder `UIC18` includes codes for the following paper:
