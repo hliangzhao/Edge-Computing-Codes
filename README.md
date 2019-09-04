@@ -53,7 +53,7 @@ If you have used the codes in your research works, we would appreciate citation 
 **Hailiang Zhao**, Wei Du, Wei Liu, Tao Lei and Qiwang Lei, *QoE Aware and Cell Capacity Enhanced Computation Offloading for Multi-Server Mobile Edge Computing Systems with Energy Harvesting Devices.* In: **Proceedings of the 15th IEEE International Conference on Ubiquitous Intelligence and Computing (UIC'18)**, Guangzhou, China, 2018.
 
 ### About the Author
-**Hailiang Zhao** @ [CCNT Lab](http://www.cs.zju.edu.cn/kejizhan/lab/CCNT.html), [ZJU-CS](http://www.cs.zju.edu.cn/)
+**Hailiang Zhao** @ CCNT Lab, [ZJU-CS](http://www.cs.zju.edu.cn/)
 * Email: hliangzhao97 {AT} gmail.com
 * GitHub: https://github.com/hliangzhao
-* Profile: https://hliangzhao.github.io/CV/
+* Profile: https://hliangzhao.github.io
