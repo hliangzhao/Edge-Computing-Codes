@@ -56,4 +56,4 @@ If you have used the codes in your research works, we would appreciate citation 
 **Hailiang Zhao** @ CCNT Lab, [ZJU-CS](http://www.cs.zju.edu.cn/)
 * Email: hliangzhao97 {AT} gmail.com
 * GitHub: https://github.com/hliangzhao
-* Profile: hliangzhao.me
+* Profile: [hliangzhao.me](http://hliangzhao.me/)
