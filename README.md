@@ -3,8 +3,8 @@
   - [UIC18](#uic18)
     - [LODCO algorithm](#lodco-algorithm)
     - [LODCO-based Greedy algorithms](#lodco-based-greedy-algorithms)
+  - [ICWS19](#icws19)
   - [Final Notes](#final-notes)
-    - [About the Author](#about-the-author)
 
 Edge computing is the practice of processing data near the edge of the network, where the data is being generated, instead of in a centralised data-processing warehouse. This repos provides a better implementation of proposed algorithms in Edge Computing (it may not the same as the original algorithm).
 
@@ -42,18 +42,14 @@ We implemented **the LODCO algorithm** (`LODCO.m`), and the simulation results a
 <img src="./UIC18/figures/10devices_ratio_eps03.svg" width="400"/><img src="./UIC18/figures/10devices_ratio_eps08.svg" width="400"/>
 </div>
 
-**LODCO-based Genetic Algorithm with Greedy Policy** was an alternative way for computation offloading in *multi-user multi-server* MEC systems (`linprog_LODCO.m`). The Genetic Algorithm (GA) procedure can be replaced by MATLAB ToolBox function ``intlinprog(...)``. As a result, we use ``intlinprog(...)`` instead of GA in the latest version. However, bug exists. The simulation results are as follows (2000 time slots, 10 mobile devices and 8 MEC servers). 
+**LODCO-based Genetic Algorithm with Greedy Policy** was an alternative way for computation offloading in *multi-user multi-server* MEC systems (`linprog_LODCO.m`). The Genetic Algorithm (GA) procedure can be replaced by MATLAB ToolBox function ``intlinprog(...)``. As a result, we use ``intlinprog(...)`` instead of GA in the latest version. The simulation results are as follows (2000 time slots, 10 mobile devices and 8 MEC servers). 
 <div align=center>
     <img src="./UIC18/figures/10devices_battery_int.svg" width="400"/><img src="./UIC18/figures/10devices_cost_int.svg" width="400"/>
 </div>
+
+## ICWS19
 
 ## Final Notes
 If you have used the codes in your research works, we would appreciate citation to the paper mentioned before:
 
 **Hailiang Zhao**, Wei Du, Wei Liu, Tao Lei and Qiwang Lei, *QoE Aware and Cell Capacity Enhanced Computation Offloading for Multi-Server Mobile Edge Computing Systems with Energy Harvesting Devices.* In: **Proceedings of the 15th IEEE International Conference on Ubiquitous Intelligence and Computing (UIC'18)**, Guangzhou, China, 2018.
-
-### About the Author
-**Hailiang Zhao** @ CCNT Lab, [ZJU-CS](http://www.cs.zju.edu.cn/)
-* Email: hliangzhao97 {AT} gmail.com
-* GitHub: https://github.com/hliangzhao
-* Profile: [hliangzhao.me](http://hliangzhao.me/)
