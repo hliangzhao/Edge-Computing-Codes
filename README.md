@@ -50,7 +50,7 @@ We implemented **the LODCO algorithm** (`LODCO.m`), and the simulation results a
 ## Dependent-Funciton-Embedding
 Dependent function embedding is the combination of function placement and stream mapping on the heterogenous edge. Function placement studies how the dependent functions in an app (abstracted as a DAG) are placed on edge servers to minimize the makespan. Stream mapping studies how the data stream transferred between each function pair are mapped to different links between edge servers.
 
-The detial codes is located at https://github.com/hliangzhao/Dependent-Function-Embedding.
+The detailed code is located at https://github.com/hliangzhao/Dependent-Function-Embedding.
 
 ## Final Notes
 If you have used the codes in your research works, we would appreciate citation to the paper mentioned before:
