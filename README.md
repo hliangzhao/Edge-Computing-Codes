@@ -3,7 +3,7 @@
   - [UIC18](#uic18)
     - [LODCO algorithm](#lodco-algorithm)
     - [LODCO-based Greedy algorithms](#lodco-based-greedy-algorithms)
-  - [ICWS19](#icws19)
+  - [Dependent-Funciton-Embedding](#dependent-funciton-embedding)
   - [Final Notes](#final-notes)
 
 Edge computing is the practice of processing data near the edge of the network, where the data is being generated, instead of in a centralised data-processing warehouse. This repos provides a better implementation of proposed algorithms in Edge Computing (it may not the same as the original algorithm).
@@ -47,7 +47,10 @@ We implemented **the LODCO algorithm** (`LODCO.m`), and the simulation results a
     <img src="./UIC18/figures/10devices_battery_int.svg" width="400"/><img src="./UIC18/figures/10devices_cost_int.svg" width="400"/>
 </div>
 
-## ICWS19
+## Dependent-Funciton-Embedding
+Dependent function embedding is the combination of function placement and stream mapping on the heterogenous edge. Function placement studies how the dependent functions in an app (abstracted as a DAG) are placed on edge servers to minimize the makespan. Stream mapping studies how the data stream transferred between each function pair are mapped to different links between edge servers.
+
+The detial codes is located at https://github.com/hliangzhao/Dependent-Function-Embedding.
 
 ## Final Notes
 If you have used the codes in your research works, we would appreciate citation to the paper mentioned before:
